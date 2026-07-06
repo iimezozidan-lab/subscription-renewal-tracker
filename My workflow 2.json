@@ -1,0 +1,349 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9acf9a47-e3b1-4b07-b5cf-6f17df771cde",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d6ef5ded-11ad-4baf-adfd-296e1b8ab1fc",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "ACTIVE",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "625df88d-a4f3-4c68-a777-0d03458bb6d0",
+      "name": "Check Active Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d6ef5ded-11ad-4baf-adfd-296e1b8ab1fc",
+              "leftValue": "={{ (new Date($json.expiry_date).getTime() - new Date().getTime()) / (1000*60*60*24) }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        920,
+        -40
+      ],
+      "id": "d462a175-6f8e-4269-b9d2-0c0e82c5af92",
+      "name": "Check Active Status1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "iimezo.zidan@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Your subscription is about to expire",
+        "html": "=<h2>Hello {{ $json.customer_name }},</h2>\n\n<p>Your <b>{{ $json.plan_name }}</b> subscription will expire on:</p>\n\n<h3>{{ $json.expiry_date }}</h3>\n\n<p>Please renew your subscription to continue enjoying our services.</p>\n\n<p>Thank you!</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1140,
+        -100
+      ],
+      "id": "9bf5f955-b668-4282-803c-fa77794bc3c2",
+      "name": "Send email",
+      "webhookId": "78809ec7-41f6-4b94-8159-d5f1f48961da",
+      "credentials": {
+        "smtp": {
+          "id": "7pi46DxFclgsYGGs",
+          "name": "SMTP account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "subscriptions",
+          "mode": "list",
+          "cachedResultName": "subscriptions"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get Active Subscriptions').item.json.id }}",
+            "customer_name": "={{ $('Get Active Subscriptions').item.json.customer_name }}",
+            "email": "={{ $('Get Active Subscriptions').item.json.email }}",
+            "plan_name": "={{ $('Get Active Subscriptions').item.json.plan_name }}",
+            "expiry_date": "={{ $('Get Active Subscriptions').item.json.expiry_date }}",
+            "status": "REMINDER_SENT"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_name",
+              "displayName": "customer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "plan_name",
+              "displayName": "plan_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "expiry_date",
+              "displayName": "expiry_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1620,
+        -100
+      ],
+      "id": "0739a549-b521-476c-92d8-3ea361ba6f53",
+      "name": "Update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "r5dyAqrfVXXwQ7FC",
+          "name": "Postgres account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "subscriptions",
+          "mode": "list",
+          "cachedResultName": "subscriptions"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "7cd2c860-afd2-48e3-94bd-9e301da0ac37",
+      "name": "Get Active Subscriptions",
+      "credentials": {
+        "postgres": {
+          "id": "r5dyAqrfVXXwQ7FC",
+          "name": "Postgres account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        -20
+      ],
+      "id": "87ba4c62-57b7-41ec-819d-10147a2f8dee",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Active Subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Active Status": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Active Status1": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Check Active Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Check Active Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8e71ab73-01dd-45e4-9147-a8ac1979470d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0d597bc4579aba1bf0928fff3ab18156d8247baa406ed8ad554e19f84e0a86ed"
+  },
+  "id": "bPTQqrHAEHXnqHAW",
+  "tags": []
+}
